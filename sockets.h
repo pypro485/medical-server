@@ -139,3 +139,4 @@ int k_socket_get_name(
     struct sockaddr *addr,
     K_SOCKLEN_TYPE *addrlen
 );
+int k_send_all(K_SOCKET_TYPE s, const char *data, int length);

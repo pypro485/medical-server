@@ -1,6 +1,5 @@
 #include "sockets.h"
 
-
 int k_socket_init(void)
 {
 #ifdef K_TYPE_WINDOWS
@@ -156,17 +155,24 @@ int k_socket_bind(
 
 
 int k_socket_send(
+
     K_SOCKET_TYPE sock,
     const void *buf,
     int len,
     int flags)
 {
+#ifdef K_TYPE_WINDOWS
     return send(
         sock,
         buf,
         len,
         flags
     );
+#elif defined(K_TYPE_LINUX)
+    return send(sock, buf, len, MSG_NOSIGNAL | flags);
+#endif
+
+
 }
 
 
@@ -340,4 +346,14 @@ int k_socket_get_name(
     return ret == 0 ? 0 : K_SOCKET_ERROR;
 
 #endif
+}
+
+int k_send_all(K_SOCKET_TYPE s, const char *data, int length) {
+    int bytes_sent = 0;
+    while (bytes_sent < length) {
+        int sending = k_socket_send(s, data + bytes_sent, length - bytes_sent, 0);
+        if (sending <= 0) return -1;
+        bytes_sent += sending;
+    }
+    return 0;
 }
